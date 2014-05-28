@@ -17,6 +17,10 @@ A class representing the User ID and Group pair used with security group operati
 
 AWS Access Key ID of the user.
 
+=item group_id (required)
+
+AWS Group ID of the security group.
+
 =item group_name (required)
 
 Name of the security group.
@@ -24,6 +28,7 @@ Name of the security group.
 =cut
 
 has 'user_id'       => ( is => 'ro', isa => 'Str', required => 1 );
+has 'group_id'      => ( is => 'ro', isa => 'Maybe[Str]', required => 1 );
 has 'group_name'    => ( is => 'ro', isa => 'Maybe[Str]', required => 1 );
 
 __PACKAGE__->meta->make_immutable();

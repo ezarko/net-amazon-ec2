@@ -2436,6 +2436,7 @@ sub describe_security_groups {
 					foreach my $grp (@{$ip_perm->{groups}{item}}) {
 						my $group = Net::Amazon::EC2::UserIdGroupPair->new(
 							user_id		=> $grp->{userId},
+							group_id	=> $grp->{groupId},
 							group_name	=> $grp->{groupName},
 						);
 						
@@ -2486,6 +2487,7 @@ sub describe_security_groups {
 					foreach my $grp (@{$ip_perm->{groups}{item}}) {
 						my $group = Net::Amazon::EC2::UserIdGroupPair->new(
 							user_id		=> $grp->{userId},
+							group_id	=> $grp->{groupId},
 							group_name	=> $grp->{groupName},
 						);
 						
