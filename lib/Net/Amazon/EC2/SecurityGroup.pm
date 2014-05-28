@@ -17,6 +17,10 @@ A class representing a security group.
 
 The AWS Access Key ID of the owner of the security group.
 
+=item group_id (required)
+
+The id of the security group.
+
 =item group_name (required)
 
 The name of the security group.
@@ -29,15 +33,26 @@ The description of the security group.
 
 An array ref of Net::Amazon::EC2::IpPermission objects.
 
+=item ip_permissions_egress (optional)
+
+An array ref of Net::Amazon::EC2::IpPermission objects.
+
 =cut
 
 has 'owner_id'          => ( is => 'ro', isa => 'Str', required => 1 );
+has 'group_id'          => ( is => 'ro', isa => 'Str', required => 1 );
 has 'group_name'        => ( is => 'ro', isa => 'Str', required => 1 );
 has 'group_description' => ( is => 'ro', isa => 'Str', required => 1 );
 has 'ip_permissions'    => ( 
     is          => 'ro', 
     isa         => 'Maybe[ArrayRef[Net::Amazon::EC2::IpPermission]]',
     predicate   => 'has_ip_permissions',
+    default		=> sub { [ ] },
+);
+has 'ip_permissions_egress' => ( 
+    is          => 'ro', 
+    isa         => 'Maybe[ArrayRef[Net::Amazon::EC2::IpPermission]]',
+    predicate   => 'has_ip_permissions_egress',
     default		=> sub { [ ] },
 );
 

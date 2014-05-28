@@ -2418,9 +2418,11 @@ sub describe_security_groups {
 		my $security_groups;
 		foreach my $sec_grp (@{$xml->{securityGroupInfo}{item}}) {
 			my $owner_id = $sec_grp->{ownerId};
+			my $group_id = $sec_grp->{groupId};
 			my $group_name = $sec_grp->{groupName};
 			my $group_description = $sec_grp->{groupDescription};
 			my $ip_permissions;
+			my $ip_permissions_egress;
 
 			foreach my $ip_perm (@{$sec_grp->{ipPermissions}{item}}) {
 				my $ip_protocol = $ip_perm->{ipProtocol};
@@ -2472,11 +2474,63 @@ sub describe_security_groups {
 				push @$ip_permissions, $ip_permission;
 			}
 			
+			foreach my $ip_perm (@{$sec_grp->{ipPermissionsEgress}{item}}) {
+				my $ip_protocol = $ip_perm->{ipProtocol};
+				my $from_port	= $ip_perm->{fromPort};
+				my $to_port		= $ip_perm->{toPort};
+				my $icmp_port	= $ip_perm->{icmpPort};
+				my $groups;
+				my $ip_ranges;
+				
+				if (grep { defined && length } $ip_perm->{groups}{item}) {
+					foreach my $grp (@{$ip_perm->{groups}{item}}) {
+						my $group = Net::Amazon::EC2::UserIdGroupPair->new(
+							user_id		=> $grp->{userId},
+							group_name	=> $grp->{groupName},
+						);
+						
+						push @$groups, $group;
+					}
+				}
+				
+				if (grep { defined && length } $ip_perm->{ipRanges}{item}) {
+					foreach my $rng (@{$ip_perm->{ipRanges}{item}}) {
+						my $ip_range = Net::Amazon::EC2::IpRange->new(
+							cidr_ip => $rng->{cidrIp},
+						);
+						
+						push @$ip_ranges, $ip_range;
+					}
+				}
+
+								
+				my $ip_permission = Net::Amazon::EC2::IpPermission->new(
+					ip_protocol			=> $ip_protocol,
+					group_name			=> $group_name,
+					group_description	=> $group_description,
+					from_port			=> $from_port,
+					to_port				=> $to_port,
+					icmp_port			=> $icmp_port,
+				);
+				
+				if ($ip_ranges) {
+					$ip_permission->ip_ranges($ip_ranges);
+				}
+
+				if ($groups) {
+					$ip_permission->groups($groups);
+				}
+				
+				push @$ip_permissions_egress, $ip_permission;
+			}
+			
 			my $security_group = Net::Amazon::EC2::SecurityGroup->new(
 				owner_id			=> $owner_id,
+				group_id			=> $group_id,
 				group_name			=> $group_name,
 				group_description	=> $group_description,
 				ip_permissions		=> $ip_permissions,
+				ip_permissions_egress		=> $ip_permissions_egress,
 			);
 			
 			push @$security_groups, $security_group;
